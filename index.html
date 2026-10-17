@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Plataforma interativa para resolver questões de concursos públicos com comentários detalhados e caderno de erros.">
+  <title>Simulado Concursos | Resolução Interativa de Questões</title>
+  
+  <!-- Modern Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header class="top-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon">⚖️</div>
+        <div class="brand-info">
+          <h1>Simulado Concursos</h1>
+          <span>Treinamento & Resolução com Comentários</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="themeToggleBtn" class="theme-toggle" title="Alternar Modo Escuro / Claro" aria-label="Alternar Tema">
+          <span id="themeIcon">🌙</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- App Main Content Layout -->
+  <main class="app-container">
+    
+    <!-- Sidebar: Stats & Filters -->
+    <aside class="sidebar">
+      
+      <!-- Performance Stats Card -->
+      <section class="sidebar-card">
+        <div class="sidebar-title">
+          <span>Seu Desempenho</span>
+          <button id="btnResetHistory" class="btn-icon" style="width: 26px; height: 26px; font-size: 0.75rem;" title="Zerar Histórico">🔄</button>
+        </div>
+        
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div id="statTotal" class="stat-value">0</div>
+            <div class="stat-label">Total</div>
+          </div>
+          <div class="stat-box">
+            <div id="statAnswered" class="stat-value">0</div>
+            <div class="stat-label">Resolvidas</div>
+          </div>
+          <div class="stat-box">
+            <div id="statCorrect" class="stat-value correct">0</div>
+            <div class="stat-label">Acertos</div>
+          </div>
+          <div class="stat-box">
+            <div id="statWrong" class="stat-value wrong">0</div>
+            <div class="stat-label">Erros</div>
+          </div>
+        </div>
+
+        <div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);">
+            <span>Taxa de Acerto</span>
+            <span id="statRate">0%</span>
+          </div>
+          <div class="progress-bar-container">
+            <div id="statProgressBar" class="progress-bar-fill"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Filter by Status / Caderno de Erros -->
+      <section class="sidebar-card">
+        <div class="sidebar-title">Status da Questão</div>
+        <div class="status-pills">
+          <div class="status-pill active" data-status="all">
+            <span>Todas as Questões</span>
+            <span class="status-count" id="pillCountAll">0</span>
+          </div>
+          <div class="status-pill" data-status="unanswered">
+            <span>Não Respondidas</span>
+            <span class="status-count" id="pillCountUnanswered">0</span>
+          </div>
+          <div class="status-pill" data-status="wrong">
+            <span>📕 Caderno de Erros</span>
+            <span class="status-count" id="pillCountWrong">0</span>
+          </div>
+          <div class="status-pill" data-status="correct">
+            <span>✅ Acertos</span>
+            <span class="status-count" id="pillCountCorrect">0</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Content Filters Card -->
+      <section class="sidebar-card">
+        <div class="sidebar-title">Filtros de Prova</div>
+
+        <div class="filter-group">
+          <label class="filter-label" for="filterSearch">Buscar no Texto</label>
+          <input type="text" id="filterSearch" class="filter-input" placeholder="Termo, assunto ou lei...">
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label" for="filterSubject">Disciplina</label>
+          <select id="filterSubject" class="filter-select">
+            <option value="">Todas as Disciplinas</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label" for="filterBanca">Banca Examinadora</label>
+          <select id="filterBanca" class="filter-select">
+            <option value="">Todas as Bancas</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label" for="filterAno">Ano</label>
+          <select id="filterAno" class="filter-select">
+            <option value="">Todos os Anos</option>
+          </select>
+        </div>
+
+        <button id="btnResetFilters" class="btn-reset-filters">Limpar Todos os Filtros</button>
+      </section>
+
+      <!-- Quick Jump Palette -->
+      <section class="palette-card">
+        <div class="sidebar-title">Navegação Rápida</div>
+        <div id="paletteContainer" class="palette-grid">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+    </aside>
+
+    <!-- Main Workspace -->
+    <section class="main-content">
+      
+      <!-- Toolbar & Question Navigation -->
+      <div class="question-toolbar">
+        <div class="nav-meta">
+          Questão <span id="navCurrentIndex">1</span> de <span id="navTotalCount">0</span>
+        </div>
+        <div class="nav-controls">
+          <button id="btnPrev" class="btn-nav" title="Questão Anterior (Seta Esquerda)">
+            <span>‹</span> Anterior
+          </button>
+          <button id="btnNext" class="btn-nav" title="Próxima Questão (Seta Direita)">
+            Próxima <span>›</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Question Box -->
+      <article id="questionContainer" class="question-card">
+        
+        <!-- Meta Badges (Banca, Ano, Órgão, Cargo, Assunto) -->
+        <div id="metaTagsContainer" class="question-meta-tags">
+          <!-- Badges injected by JS -->
+        </div>
+
+        <!-- Optional Support Text / Context -->
+        <div id="questionSupportText" class="question-support-text" style="display: none;"></div>
+
+        <!-- Question Statement -->
+        <div id="questionStatement" class="question-statement">
+          Carregando enunciado da questão...
+        </div>
+
+        <!-- Alternatives / Options -->
+        <div id="optionsList" class="options-list">
+          <!-- Options injected by JS -->
+        </div>
+
+        <!-- Action Bar: Confirm Answer & Toggle Explanation -->
+        <div class="action-bar">
+          <button id="btnConfirm" class="btn-confirm" disabled>
+            Responder Questão ➔
+          </button>
+
+          <button id="btnToggleExplanation" class="btn-toggle-explanation">
+            <span>💡 Ver Comentário do Professor</span>
+          </button>
+        </div>
+
+        <!-- Detailed Explanation Panel (Auto-opens on mistake) -->
+        <div id="explanationPanel" class="explanation-panel">
+          <div class="explanation-header">
+            <span>📚</span> Comentário Explicativo & Fundamentação
+          </div>
+          <div class="explanation-body">
+            <div id="explanationSummary" class="explanation-summary"></div>
+            <div id="explanationDetails" class="explanation-details"></div>
+          </div>
+        </div>
+
+      </article>
+
+      <!-- Empty State when filters yield no results -->
+      <div id="emptyContainer" class="empty-state" style="display: none;">
+        <div class="empty-icon">🔍</div>
+        <h3>Nenhuma questão encontrada</h3>
+        <p style="color: var(--text-muted); margin-top: 0.5rem;">Tente ajustar ou redefinir os filtros na barra lateral.</p>
+      </div>
+
+    </section>
+
+  </main>
+
+  <footer>
+    <p>Simulado de Questões de Concursos Públicos • Pronto para expansão de questões e simulados personalizados.</p>
+  </footer>
+
+  <script src="js/questions-data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
