@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Plataforma interativa para resolver questões de concursos públicos com comentários detalhados e caderno de erros.">
-  <title>Simulado Concursos | Resolução Interativa de Questões</title>
+  <meta name="description" content="Plataforma interativa para estudo e resolução de questões da faculdade de Biomedicina com comentários detalhados e caderno de erros.">
+  <title>Biomedicina | Questões da Faculdade</title>
   
   <!-- Modern Google Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,10 +19,10 @@
   <header class="top-header">
     <div class="header-container">
       <div class="brand">
-        <div class="brand-icon">⚖️</div>
+        <div class="brand-icon">🧬</div>
         <div class="brand-info">
-          <h1>Simulado Concursos</h1>
-          <span>Treinamento & Resolução com Comentários</span>
+          <h1>Biomedicina • Faculdade</h1>
+          <span>Treinamento, Resolução de Questões & Comentários</span>
         </div>
       </div>
 
@@ -102,35 +102,21 @@
 
       <!-- Content Filters Card -->
       <section class="sidebar-card">
-        <div class="sidebar-title">Filtros de Prova</div>
+        <div class="sidebar-title">Filtros de Estudo</div>
 
         <div class="filter-group">
           <label class="filter-label" for="filterSearch">Buscar no Texto</label>
-          <input type="text" id="filterSearch" class="filter-input" placeholder="Termo, assunto ou lei...">
+          <input type="text" id="filterSearch" class="filter-input" placeholder="Termo, assunto ou conceito...">
         </div>
 
         <div class="filter-group">
-          <label class="filter-label" for="filterSubject">Disciplina</label>
-          <select id="filterSubject" class="filter-select">
-            <option value="">Todas as Disciplinas</option>
+          <label class="filter-label" for="filterTopic">Assunto / Conteúdo</label>
+          <select id="filterTopic" class="filter-select">
+            <option value="">Todos os Assuntos</option>
           </select>
         </div>
 
-        <div class="filter-group">
-          <label class="filter-label" for="filterBanca">Banca Examinadora</label>
-          <select id="filterBanca" class="filter-select">
-            <option value="">Todas as Bancas</option>
-          </select>
-        </div>
-
-        <div class="filter-group">
-          <label class="filter-label" for="filterAno">Ano</label>
-          <select id="filterAno" class="filter-select">
-            <option value="">Todos os Anos</option>
-          </select>
-        </div>
-
-        <button id="btnResetFilters" class="btn-reset-filters">Limpar Todos os Filtros</button>
+        <button id="btnResetFilters" class="btn-reset-filters">Limpar Filtros</button>
       </section>
 
       <!-- Quick Jump Palette -->
@@ -206,11 +192,11 @@
 
       </article>
 
-      <!-- Empty State when filters yield no results -->
+      <!-- Empty State when filters yield no results or bank is empty -->
       <div id="emptyContainer" class="empty-state" style="display: none;">
-        <div class="empty-icon">🔍</div>
-        <h3>Nenhuma questão encontrada</h3>
-        <p style="color: var(--text-muted); margin-top: 0.5rem;">Tente ajustar ou redefinir os filtros na barra lateral.</p>
+        <div id="emptyIcon" class="empty-icon">🧬</div>
+        <h3 id="emptyTitle">Aguardando Questões da Faculdade</h3>
+        <p id="emptyMessage" style="color: var(--text-muted); margin-top: 0.5rem;">Nenhuma questão cadastrada no momento. Adicione os materiais ou questões de Biomedicina para começar.</p>
       </div>
 
     </section>
@@ -218,7 +204,7 @@
   </main>
 
   <footer>
-    <p>Simulado de Questões de Concursos Públicos • Pronto para expansão de questões e simulados personalizados.</p>
+    <p>Biomedicina • Plataforma de Estudos e Questões da Faculdade.</p>
   </footer>
 
   <script src="js/questions-data.js"></script>

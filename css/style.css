@@ -455,7 +455,8 @@ body {
   border-color: rgba(99, 102, 241, 0.3);
 }
 
-.badge-subject {
+.badge-subject,
+.badge-topic {
   background: rgba(16, 185, 129, 0.15);
   color: var(--success);
   border-color: rgba(16, 185, 129, 0.3);

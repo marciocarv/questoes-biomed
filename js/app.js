@@ -35,9 +35,7 @@ class QuizApp {
     this.btnResetHistory = document.getElementById('btnResetHistory');
 
     // Filters
-    this.filterSubject = document.getElementById('filterSubject');
-    this.filterBanca = document.getElementById('filterBanca');
-    this.filterAno = document.getElementById('filterAno');
+    this.filterTopic = document.getElementById('filterTopic');
     this.filterSearch = document.getElementById('filterSearch');
     this.btnResetFilters = document.getElementById('btnResetFilters');
     this.statusPills = document.querySelectorAll('.status-pill');
@@ -103,7 +101,7 @@ class QuizApp {
 
   async loadData() {
     // If questions-data.js is loaded (e.g. opened directly via file://), use it immediately!
-    if (typeof RAW_QUESTIONS_DATA !== 'undefined' && Array.isArray(RAW_QUESTIONS_DATA) && RAW_QUESTIONS_DATA.length > 0) {
+    if (typeof RAW_QUESTIONS_DATA !== 'undefined' && Array.isArray(RAW_QUESTIONS_DATA)) {
       this.allQuestions = RAW_QUESTIONS_DATA;
       this.populateFilterDropdowns();
       this.applyFilters();
@@ -125,19 +123,16 @@ class QuizApp {
   }
 
   populateFilterDropdowns() {
-    const subjects = new Set();
-    const bancas = new Set();
-    const anos = new Set();
+    const topics = new Set();
 
     this.allQuestions.forEach(q => {
-      if (q.subject) subjects.add(q.subject);
-      if (q.exam?.banca) bancas.add(q.exam.banca);
-      if (q.exam?.ano) anos.add(q.exam.ano);
+      const topic = q.topic || q.assunto;
+      if (topic) topics.add(topic);
     });
 
-    this.fillSelect(this.filterSubject, Array.from(subjects).sort(), 'Todas as Disciplinas');
-    this.fillSelect(this.filterBanca, Array.from(bancas).sort(), 'Todas as Bancas');
-    this.fillSelect(this.filterAno, Array.from(anos).sort((a,b) => b - a), 'Todos os Anos');
+    if (this.filterTopic) {
+      this.fillSelect(this.filterTopic, Array.from(topics).sort(), 'Todos os Assuntos');
+    }
   }
 
   fillSelect(selectEl, items, defaultLabel) {
@@ -184,25 +179,27 @@ class QuizApp {
     });
 
     // Filters
-    this.filterSubject.addEventListener('change', () => this.applyFilters());
-    this.filterBanca.addEventListener('change', () => this.applyFilters());
-    this.filterAno.addEventListener('change', () => this.applyFilters());
+    if (this.filterTopic) {
+      this.filterTopic.addEventListener('change', () => this.applyFilters());
+    }
     
-    let searchDebounce;
-    this.filterSearch.addEventListener('input', () => {
-      clearTimeout(searchDebounce);
-      searchDebounce = setTimeout(() => this.applyFilters(), 250);
-    });
+    if (this.filterSearch) {
+      let searchDebounce;
+      this.filterSearch.addEventListener('input', () => {
+        clearTimeout(searchDebounce);
+        searchDebounce = setTimeout(() => this.applyFilters(), 250);
+      });
+    }
 
-    this.btnResetFilters.addEventListener('click', () => {
-      this.filterSubject.value = '';
-      this.filterBanca.value = '';
-      this.filterAno.value = '';
-      this.filterSearch.value = '';
-      this.currentFilterStatus = 'all';
-      this.updateStatusPillsUI();
-      this.applyFilters();
-    });
+    if (this.btnResetFilters) {
+      this.btnResetFilters.addEventListener('click', () => {
+        if (this.filterTopic) this.filterTopic.value = '';
+        if (this.filterSearch) this.filterSearch.value = '';
+        this.currentFilterStatus = 'all';
+        this.updateStatusPillsUI();
+        this.applyFilters();
+      });
+    }
 
     // Status Pills
     this.statusPills.forEach(pill => {
@@ -234,22 +231,20 @@ class QuizApp {
   }
 
   applyFilters() {
-    const selectedSub = this.filterSubject.value;
-    const selectedBanca = this.filterBanca.value;
-    const selectedAno = this.filterAno.value;
-    const searchVal = this.filterSearch.value.trim().toLowerCase();
+    const selectedTopic = this.filterTopic ? this.filterTopic.value : '';
+    const searchVal = this.filterSearch ? this.filterSearch.value.trim().toLowerCase() : '';
 
     this.filteredQuestions = this.allQuestions.filter(q => {
-      if (selectedSub && q.subject !== selectedSub) return false;
-      if (selectedBanca && q.exam?.banca !== selectedBanca) return false;
-      if (selectedAno && String(q.exam?.ano) !== String(selectedAno)) return false;
+      const topic = q.topic || q.assunto || '';
+      if (selectedTopic && topic !== selectedTopic) return false;
 
       if (searchVal) {
         const inStatement = q.statement?.toLowerCase().includes(searchVal);
-        const inTopic = q.topic?.toLowerCase().includes(searchVal);
-        const inCargo = q.exam?.cargo?.toLowerCase().includes(searchVal);
-        const inOrgao = q.exam?.orgao?.toLowerCase().includes(searchVal);
-        if (!inStatement && !inTopic && !inCargo && !inOrgao) return false;
+        const inTopic = topic.toLowerCase().includes(searchVal);
+        const inModulo = q.modulo?.toLowerCase().includes(searchVal);
+        const inOptions = q.options?.some(opt => opt.text?.toLowerCase().includes(searchVal));
+        const inExplanation = q.explanation?.details?.toLowerCase().includes(searchVal) || q.explanation?.summary?.toLowerCase().includes(searchVal);
+        if (!inStatement && !inTopic && !inModulo && !inOptions && !inExplanation) return false;
       }
 
       const answerInfo = this.userAnswers[q.id];
@@ -330,6 +325,20 @@ class QuizApp {
       this.navTotalCount.textContent = '0';
       this.btnPrev.disabled = true;
       this.btnNext.disabled = true;
+
+      const emptyIcon = document.getElementById('emptyIcon');
+      const emptyTitle = document.getElementById('emptyTitle');
+      const emptyMsg = document.getElementById('emptyMessage');
+
+      if (this.allQuestions.length === 0) {
+        if (emptyIcon) emptyIcon.textContent = '🧬';
+        if (emptyTitle) emptyTitle.textContent = 'Aguardando Questões da Faculdade';
+        if (emptyMsg) emptyMsg.textContent = 'Nenhuma questão cadastrada no momento. Adicione os materiais ou questões de Biomedicina para começar.';
+      } else {
+        if (emptyIcon) emptyIcon.textContent = '🔍';
+        if (emptyTitle) emptyTitle.textContent = 'Nenhuma questão encontrada';
+        if (emptyMsg) emptyMsg.textContent = 'Tente ajustar ou redefinir os filtros na barra lateral.';
+      }
       return;
     }
 
@@ -351,16 +360,28 @@ class QuizApp {
       btn.classList.toggle('active', idx === this.currentIndex);
     });
 
-    // Meta Badges
-    this.metaTagsContainer.innerHTML = `
-      ${q.number ? `<span class="badge" style="background: var(--primary); color: #fff; font-weight: 800;">Questão ${q.number}</span>` : ''}
-      <span class="badge badge-banca">🏛️ ${q.exam?.banca || 'Banca'}</span>
-      <span class="badge">📅 ${q.exam?.ano || 'Ano'}</span>
-      <span class="badge">🏢 ${q.exam?.orgao || 'Órgão'}</span>
-      <span class="badge">💼 ${q.exam?.cargo || 'Cargo'}</span>
-      <span class="badge badge-subject">📚 ${q.subject || 'Disciplina'}</span>
-      ${q.topic ? `<span class="badge">🏷️ ${q.topic}</span>` : ''}
-    `;
+    // Meta Badges for College Biomedicine Questions
+    const badges = [];
+    if (q.number) {
+      badges.push(`<span class="badge" style="background: var(--primary); color: #fff; font-weight: 800;">Questão ${q.number}</span>`);
+    }
+    const topic = q.topic || q.assunto;
+    if (topic) {
+      badges.push(`<span class="badge badge-topic">🏷️ ${topic}</span>`);
+    }
+    if (q.modulo) {
+      badges.push(`<span class="badge">📖 ${q.modulo}</span>`);
+    }
+    if (q.semestre || q.periodo) {
+      badges.push(`<span class="badge">🎓 ${q.semestre || q.periodo}</span>`);
+    }
+    if (q.professor) {
+      badges.push(`<span class="badge">👨‍🏫 Prof. ${q.professor}</span>`);
+    }
+    if (q.ano) {
+      badges.push(`<span class="badge">📅 ${q.ano}</span>`);
+    }
+    this.metaTagsContainer.innerHTML = badges.join(' ');
 
     // Support Text (e.g. text excerpts)
     if (q.support_text && q.support_text.trim() !== '') {
